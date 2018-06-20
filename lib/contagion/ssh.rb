@@ -29,7 +29,7 @@ module Contagion
 
     def upload(source_file, to:)
       file_path = to
-      puts "Uploading to #{host} ..."
+      print "Uploading to #{host} ... "
       net_ssh.exec! "sudo cp #{file_path} #{file_path_backup_for(file_path)}"
       net_ssh.exec! "sudo sh -c \"echo '#{source_file.read}' > #{file_path}\""
       puts 'Completed'
