@@ -24,6 +24,8 @@ module Contagion
         end
       end
       content
+    ensure
+      net_ssh.close
     end
 
     def upload(source_file)
@@ -34,6 +36,8 @@ module Contagion
     rescue => e
       puts 'Failed'
       raise e
+    ensure
+      net_ssh.close
     end
 
   private
