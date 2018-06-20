@@ -21,7 +21,6 @@ module Contagion
         if stream == :stderr
           puts "ERROR: #{data}"
         else
-          puts 'completed'
           @content = data
         end
       end
@@ -30,8 +29,13 @@ module Contagion
 
     def upload(source_file, to:)
       file_path = to
+      puts "Uploading to #{host} ..."
       net_ssh.exec! "sudo cp #{file_path} #{file_path_backup_for(file_path)}"
       net_ssh.exec! "sudo sh -c \"echo '#{source_file.read}' > #{file_path}\""
+      puts 'Completed'
+    rescue => e
+      puts 'Failed'
+      raise e
     end
 
   private
