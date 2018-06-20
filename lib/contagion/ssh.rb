@@ -58,15 +58,19 @@ module Contagion
     end
 
     def file_backup_command
-      "sudo cp #{config['file_path']} #{file_backup_path}"
+      "#{sudo} cp #{config['file_path']} #{file_backup_path}"
     end
 
     def file_write_command_for(source_file)
-      "sudo sh -c \"echo '#{source_file.read}' > #{config["file_path"]}\""
+      "#{sudo} sh -c \"echo '#{source_file.read}' > #{config["file_path"]}\""
     end
 
     def file_cat_command
-      "sudo cat #{config['file_path']}"
+      "#{sudo} cat #{config['file_path']}"
+    end
+
+    def sudo
+      'sudo' if config['sudo'] == true
     end
   end
 end
