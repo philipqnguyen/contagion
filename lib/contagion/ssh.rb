@@ -47,7 +47,9 @@ module Contagion
     end
 
     def net_ssh
-      Net::SSH.start config['host'], config['username'], passphrase: passphrase
+      @session ||= Net::SSH.start config['host'],
+                                  config['username'],
+                                  passphrase: passphrase
     end
 
     def file_backup_path
