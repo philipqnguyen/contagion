@@ -8,8 +8,8 @@ module Contagion
 
     def copy(from:)
       source = from
-      ssh = SSH.new host: source['host'], username: source['username']
-      content = ssh.download source['file_path']
+      ssh = SSH.new source
+      content = ssh.download
       write content
     end
 
@@ -24,8 +24,8 @@ module Contagion
 
     def paste(to:)
       target = to
-      ssh = SSH.new host: target['host'], username: target['username']
-      ssh.upload self, to: target['file_path']
+      ssh = SSH.new target
+      ssh.upload self
     end
 
     def read

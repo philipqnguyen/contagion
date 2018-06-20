@@ -2,20 +2,18 @@ require 'yaml'
 
 module Contagion
   class GroundZero
-    attr_reader :dna, :source, :targets
+    attr_reader :dna
 
     def initialize(dna)
       @dna = YAML.load_file dna
-      @source = @dna['source']
-      @targets = @dna['targets']
     end
 
     def infect
       SSH.passphrase = private_key_passphrase
       source_file = SourceFile.new
-      source_file.copy from: source
+      source_file.copy from: dna['source']
       return unless edited_and_confirmed_for? source_file
-      targets.each { |target| source_file.paste to: target }
+      dna['targets'].each {|target| source_file.paste to: target}
     ensure
       source_file.close
       source_file.unlink

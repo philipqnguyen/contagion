@@ -8,16 +8,15 @@ module Contagion
       @passphrase
     end
 
-    attr_reader :host, :username, :content
+    attr_reader :content, :config
 
-    def initialize(host:, username:)
-      @host = host
-      @username = username
+    def initialize(config)
+      @config = config
       @content = nil
     end
 
-    def download(remote_file_path)
-      net_ssh.exec!("sudo cat #{remote_file_path}") do |_ch, stream, data|
+    def download
+      net_ssh.exec!(file_cat_command) do |_ch, stream, data|
         if stream == :stderr
           puts "ERROR: #{data}"
         else
@@ -27,11 +26,10 @@ module Contagion
       content
     end
 
-    def upload(source_file, to:)
-      file_path = to
-      print "Uploading to #{host} ... "
-      net_ssh.exec! "sudo cp #{file_path} #{file_path_backup_for(file_path)}"
-      net_ssh.exec! "sudo sh -c \"echo '#{source_file.read}' > #{file_path}\""
+    def upload(source_file)
+      print "Uploading to #{config['host']} ... "
+      net_ssh.exec! file_backup_command
+      net_ssh.exec! file_write_command_for(source_file)
       puts 'Completed'
     rescue => e
       puts 'Failed'
@@ -45,12 +43,24 @@ module Contagion
     end
 
     def net_ssh
-      Net::SSH.start host, username, passphrase: passphrase
+      Net::SSH.start config['host'], config['username'], passphrase: passphrase
     end
 
-    def file_path_backup_for(file_path)
+    def file_backup_path
       timestamp = Time.now.utc.strftime "%Y_%b_%e_%H_%M_%S"
-      "#{file_path}.#{timestamp}.bak"
+      "#{config['file_path']}.#{timestamp}.bak"
+    end
+
+    def file_backup_command
+      "sudo cp #{config['file_path']} #{file_backup_path}"
+    end
+
+    def file_write_command_for(source_file)
+      "sudo sh -c \"echo '#{source_file.read}' > #{config["file_path"]}\""
+    end
+
+    def file_cat_command
+      "sudo cat #{config['file_path']}"
     end
   end
 end
