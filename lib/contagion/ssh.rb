@@ -1,17 +1,9 @@
 module Contagion
   class SSH
-    def self.passphrase=(passphrase)
-      @passphrase = passphrase.length.zero? ? nil : passphrase
-    end
+    attr_reader :content, :location_dna
 
-    def self.passphrase
-      @passphrase
-    end
-
-    attr_reader :content, :config
-
-    def initialize(config)
-      @config = config
+    def initialize(location_dna)
+      @location_dna = location_dna
       @content = nil
     end
 
@@ -29,7 +21,7 @@ module Contagion
     end
 
     def upload(source_file)
-      print "Uploading to #{config['host']} ... "
+      print "Uploading to #{location_dna.host} ... "
       net_ssh.exec! file_backup_command
       net_ssh.exec! file_write_command_for(source_file)
       puts 'Completed'
@@ -42,35 +34,29 @@ module Contagion
 
   private
 
-    def passphrase
-      self.class.passphrase
-    end
-
     def net_ssh
-      @session ||= Net::SSH.start config['host'],
-                                  config['username'],
-                                  passphrase: passphrase
+      @session ||= Net::SSH.start location_dna.host,
+                                  location_dna.username,
+                                  passphrase: location_dna.passphrase
     end
 
     def file_backup_path
       timestamp = Time.now.utc.strftime "%Y_%b_%e_%H_%M_%S"
-      "#{config['file_path']}.#{timestamp}.bak"
+      "#{location_dna.file_path}.#{timestamp}.bak"
     end
 
     def file_backup_command
-      "#{sudo} cp #{config['file_path']} #{file_backup_path}"
+      "#{location_dna.sudo} cp #{location_dna.file_path} #{file_backup_path}"
     end
 
     def file_write_command_for(source_file)
-      "#{sudo} sh -c \"echo '#{source_file.read}' > #{config["file_path"]}\""
+      sudo = location_dna.sudo
+      file_path = location_dna.file_path
+      "#{sudo} sh -c \"echo '#{source_file.read}' > #{file_path}\""
     end
 
     def file_cat_command
-      "#{sudo} cat #{config['file_path']}"
-    end
-
-    def sudo
-      'sudo' if config['sudo'] == true
+      "#{location_dna.sudo} cat #{location_dna.file_path}"
     end
   end
 end

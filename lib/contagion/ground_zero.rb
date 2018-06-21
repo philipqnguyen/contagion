@@ -1,19 +1,11 @@
-require 'yaml'
-
 module Contagion
   class GroundZero
-    attr_reader :dna
-
-    def initialize(dna)
-      @dna = YAML.load_file dna
-    end
-
-    def infect
-      SSH.passphrase = private_key_passphrase
+    def infect(raw_dna)
+      main_dna = MainDNA.new raw_dna.merge({'passphrase' => passphrase})
       source_file = SourceFile.new
-      source_file.copy from: dna['source']
+      source_file.copy_from main_dna.source
       return unless edited_and_confirmed_for? source_file
-      dna['targets'].each {|target| source_file.paste to: target}
+      main_dna.targets.each {|target| source_file.paste_to target}
     ensure
       source_file.close
       source_file.unlink
@@ -21,13 +13,14 @@ module Contagion
 
   private
 
-    def private_key_passphrase
+    def passphrase
       msg = [
         'If you have a passphrase for your private ssh key, enter it here.',
         'Otherwise leave blank.'
       ].join(' ')
       puts msg
-      STDIN.noecho(&:gets).chomp
+      input = STDIN.noecho(&:gets).chomp
+      input.length.zero? ? nil : input
     end
 
     def edited_and_confirmed_for?(source_file)

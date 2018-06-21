@@ -6,9 +6,8 @@ module Contagion
       super SecureRandom.hex(6)
     end
 
-    def copy(from:)
-      source = from
-      ssh = SSH.new source
+    def copy_from(source_dna)
+      ssh = SSH.new source_dna
       content = ssh.download
       write content
     end
@@ -22,9 +21,8 @@ module Contagion
       end
     end
 
-    def paste(to:)
-      target = to
-      ssh = SSH.new target
+    def paste_to(target_dna)
+      ssh = SSH.new target_dna
       ssh.upload self
     end
 
