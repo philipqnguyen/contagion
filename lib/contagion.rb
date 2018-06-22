@@ -1,6 +1,8 @@
 require "contagion/version"
 require 'net/ssh'
 require 'tempfile'
+require 'contagion/prompt'
+require 'contagion/command'
 require "contagion/dna/main_dna"
 require "contagion/ssh"
 require "contagion/source_file"
