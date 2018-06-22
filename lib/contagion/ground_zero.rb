@@ -1,7 +1,7 @@
 module Contagion
   class GroundZero
     def infect(raw_dna)
-      main_dna = MainDNA.new raw_dna.merge({'passphrase' => passphrase})
+      main_dna = MainDNA.new raw_dna.merge({'passphrase' => prompt.passphrase})
       source_file = SourceFile.new
       source_file.copy_from main_dna.source
       return unless edited_and_confirmed_for? source_file
@@ -13,14 +13,8 @@ module Contagion
 
   private
 
-    def passphrase
-      msg = [
-        'If you have a passphrase for your private ssh key, enter it here.',
-        'Otherwise leave blank.'
-      ].join(' ')
-      puts msg
-      input = STDIN.noecho(&:gets).chomp
-      input.length.zero? ? nil : input
+    def prompt
+      @prompt ||= Prompt.new
     end
 
     def edited_and_confirmed_for?(source_file)
@@ -29,11 +23,7 @@ module Contagion
     end
 
     def confirmed_changes_for?(source_file)
-      puts 'Ready to push the new file to all targets?'
-      puts '  y - Yes! Push them all up!'
-      puts '  n - No! Get me out of here!'
-      puts '  e - Edit the file again.'
-      case STDIN.gets.chomp.downcase
+      case prompt.edit_confirmation
       when 'y'
         true
       when 'n'
