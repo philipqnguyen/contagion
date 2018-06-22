@@ -14,11 +14,7 @@ module Contagion
 
     def edit
       rewind
-      if ENV['EDITOR']
-        system("#{ENV['EDITOR']} #{path}")
-      else
-        system("nano #{path}")
-      end
+      system "#{ENV.fetch('EDITOR', 'vi')} #{path}"
     end
 
     def paste_to(target_dna)
