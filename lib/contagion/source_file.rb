@@ -1,20 +1,20 @@
 require 'securerandom'
 
 module Contagion
-  class SourceFile < Tempfile
+  class SourceFile
     def initialize
-      super SecureRandom.hex(6)
+      @tempfile = Tempfile.new SecureRandom.hex(6)
     end
 
     def copy_from(source_dna)
       ssh = SSH.new source_dna
       content = ssh.download
-      write content
+      tempfile.write content
     end
 
     def edit
-      rewind
-      system "#{ENV.fetch('EDITOR', 'vi')} #{path}"
+      tempfile.rewind
+      system "#{ENV.fetch('EDITOR', 'vi')} #{tempfile.path}"
     end
 
     def paste_to(target_dna)
@@ -23,8 +23,20 @@ module Contagion
     end
 
     def read
-      rewind
-      super
+      tempfile.rewind
+      tempfile.read
     end
+
+    def close
+      tempfile.close
+    end
+
+    def unlink
+      tempfile.unlink
+    end
+
+  private
+
+    attr_reader :tempfile
   end
 end
