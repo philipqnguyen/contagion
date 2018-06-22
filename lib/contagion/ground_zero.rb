@@ -1,8 +1,12 @@
 module Contagion
   class GroundZero
+    def initialize
+      @source_file = SourceFile.new
+      @prompt = Prompt.new
+    end
+
     def infect(raw_dna)
       main_dna = MainDNA.new raw_dna.merge({'passphrase' => prompt.passphrase})
-      source_file = SourceFile.new
       source_file.copy_from main_dna.source
       return unless edited_and_confirmed_for? source_file
       main_dna.targets.each {|target| source_file.paste_to target}
@@ -13,9 +17,7 @@ module Contagion
 
   private
 
-    def prompt
-      @prompt ||= Prompt.new
-    end
+    attr_reader :source_file, :prompt
 
     def edited_and_confirmed_for?(source_file)
       source_file.edit

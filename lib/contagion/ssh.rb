@@ -5,6 +5,7 @@ module Contagion
     def initialize(location_dna)
       @location_dna = location_dna
       @content = nil
+      @command = Command.new location_dna
     end
 
     def download
@@ -34,9 +35,7 @@ module Contagion
 
   private
 
-    def command
-      @command ||= Command.new location_dna
-    end
+    attr_reader :command
 
     def net_ssh
       @session ||= Net::SSH.start location_dna.host,
