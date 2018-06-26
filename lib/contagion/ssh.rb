@@ -26,8 +26,9 @@ module Contagion
       net_ssh.exec! command.backup_file
       net_ssh.exec! command.write_file_with(source_file)
       puts 'Completed'
-    rescue => e
+    rescue Net::SSH::Exception => e
       puts 'Failed'
+      puts "#{e.class}: #{e.message}"
     ensure
       net_ssh.close
     end
