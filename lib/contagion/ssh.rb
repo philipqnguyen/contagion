@@ -28,7 +28,6 @@ module Contagion
       puts 'Completed'
     rescue => e
       puts 'Failed'
-      raise e
     ensure
       net_ssh.close
     end
