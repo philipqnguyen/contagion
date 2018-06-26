@@ -12,11 +12,6 @@ module Contagion
       tempfile.write content
     end
 
-    def edit
-      tempfile.rewind
-      system "#{ENV.fetch('EDITOR', 'vi')} #{tempfile.path}"
-    end
-
     def paste_to(target_dna)
       ssh = SSH.new target_dna
       ssh.upload self
@@ -33,6 +28,14 @@ module Contagion
 
     def unlink
       tempfile.unlink
+    end
+
+    def rewind
+      tempfile.rewind
+    end
+
+    def path
+      tempfile.path
     end
 
   private
