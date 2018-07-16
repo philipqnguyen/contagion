@@ -1,5 +1,6 @@
 require "contagion/version"
 require 'net/ssh'
+require 'io/console'
 require 'tempfile'
 require 'contagion/prompt'
 require 'contagion/command'
